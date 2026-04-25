@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.zip
+node_modules/
+dashboard/dist/
+.env
+*.zip
