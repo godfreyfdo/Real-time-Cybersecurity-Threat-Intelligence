@@ -1,4 +1,4 @@
-import json, boto3, time, os, urllib.request
+import json, boto3, time, os, urllib.request, urllib.error
 from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
@@ -18,19 +18,6 @@ RULES = {
     'xss_attempt':    {'risk': 80,  'severity': 'HIGH'},
     'ddos':           {'risk': 90,  'severity': 'CRITICAL'},
     'path_traversal': {'risk': 85,  'severity': 'HIGH'},
-}
-
-GEO_DB = {
-    '192.168.1.1':   {'country': 'Russia',       'lat': 55.75,  'lon': 37.62},
-    '10.0.0.1':      {'country': 'China',         'lat': 39.90,  'lon': 116.39},
-    '172.16.0.1':    {'country': 'North Korea',   'lat': 39.03,  'lon': 125.75},
-    '203.0.113.1':   {'country': 'Iran',          'lat': 35.69,  'lon': 51.39},
-    '198.51.100.1':  {'country': 'Brazil',        'lat': -23.55, 'lon': -46.63},
-    '185.220.101.1': {'country': 'Romania',       'lat': 44.43,  'lon': 26.10},
-    '91.108.4.1':    {'country': 'Ukraine',       'lat': 50.45,  'lon': 30.52},
-    '45.142.212.1':  {'country': 'Germany',       'lat': 52.52,  'lon': 13.40},
-    '77.88.55.1':    {'country': 'Netherlands',   'lat': 52.37,  'lon': 4.90},
-    '104.21.14.1':   {'country': 'United States', 'lat': 37.09,  'lon': -95.71},
 }
 
 SEV_EMOJI = {
@@ -83,19 +70,44 @@ def send_slack(attack_type, source_ip, country, risk, severity, event_id):
     except Exception as e:
         print(f"Slack error: {e}")
 
+def get_geo(ip):
+    # fallback for private/test IPs
+    private = ['192.168.','10.','172.16.','127.','0.']
+    if any(ip.startswith(p) for p in private):
+        return {'country':'Private Network','lat':0,'lon':0}
+    try:
+        req = urllib.request.Request(
+            f'https://ipinfo.io/{ip}/json',
+            headers={'Accept':'application/json'}
+        )
+        resp = urllib.request.urlopen(req, timeout=3)
+        data = json.loads(resp.read())
+        loc = data.get('loc','0,0').split(',')
+        return {
+            'country': data.get('country','Unknown'),
+            'city':    data.get('city',''),
+            'org':     data.get('org',''),
+            'lat':     float(loc[0]) if len(loc)==2 else 0,
+            'lon':     float(loc[1]) if len(loc)==2 else 0,
+        }
+    except:
+        return {'country':'Unknown','lat':0,'lon':0}
+
 def lambda_handler(event, context):
     for record in event['Records']:
         payload = json.loads(record['body'])
         attack_type = payload.get('attackType', 'unknown')
         source_ip = payload.get('sourceIp', '0.0.0.0')
         rule = RULES.get(attack_type, {'risk': 30, 'severity': 'LOW'})
-        geo = GEO_DB.get(source_ip, {'country': 'Unknown', 'lat': 0, 'lon': 0})
+        geo = get_geo(source_ip)
 
         enriched = {
             **payload,
             'riskScore': rule['risk'],
             'severity': rule['severity'],
             'country': geo['country'],
+            'city': geo.get('city',''),
+            'org': geo.get('org',''),
             'lat': str(geo['lat']),
             'lon': str(geo['lon']),
             'classified': True,
