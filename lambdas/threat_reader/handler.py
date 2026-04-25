@@ -17,7 +17,7 @@ def lambda_handler(event, context):
     headers = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'}
 
     if '/stats' in path:
-        resp = threat_table.scan(Limit=100)
+        resp = threat_table.scan(Limit=200)
         items = resp.get('Items', [])
         by_type = {}
         by_severity = {'LOW': 0, 'MEDIUM': 0, 'HIGH': 0, 'CRITICAL': 0}
@@ -29,7 +29,6 @@ def lambda_handler(event, context):
             by_severity[s] = by_severity.get(s, 0) + 1
             c = item.get('country', 'Unknown')
             by_country[c] = by_country.get(c, 0) + 1
-
         return {
             'statusCode': 200,
             'headers': headers,
@@ -41,10 +40,19 @@ def lambda_handler(event, context):
             }, cls=DecimalEncoder)
         }
 
-    limit = int((event.get('queryStringParameters') or {}).get('limit', 50))
+    if '/blocked' in path:
+        resp = blocked_table.scan()
+        items = resp.get('Items', [])
+        items_sorted = sorted(items, key=lambda x: x.get('blockedAt', 0), reverse=True)
+        return {
+            'statusCode': 200,
+            'headers': headers,
+            'body': json.dumps(items_sorted, cls=DecimalEncoder)
+        }
+
+    limit = int((event.get('queryStringParameters') or {}).get('limit', 100))
     resp = threat_table.scan(Limit=limit)
     items = sorted(resp.get('Items', []), key=lambda x: x.get('timestamp', 0), reverse=True)
-
     return {
         'statusCode': 200,
         'headers': headers,
