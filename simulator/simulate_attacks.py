@@ -4,9 +4,21 @@ API_URL = 'https://yg1h9ibm76.execute-api.us-east-1.amazonaws.com/prod/event'
 
 ATTACK_TYPES = ['brute_force', 'sql_inject', 'port_scan', 'xss_attempt', 'ddos', 'path_traversal']
 SOURCE_IPS = [
-    '192.168.1.1', '10.0.0.1', '172.16.0.1', '203.0.113.1',
-    '198.51.100.1', '185.220.101.1', '91.108.4.1',
-    '45.142.212.1', '77.88.55.1', '104.21.14.1'
+    '8.8.8.8',        # US - Google
+    '1.1.1.1',        # AU - Cloudflare
+    '185.220.101.34', # DE - Tor exit
+    '45.33.32.156',   # US - Linode
+    '103.21.244.0',   # SG - Singapore
+    '41.231.11.100',  # TN - Tunisia
+    '196.216.2.1',    # ZA - South Africa
+    '200.160.2.3',    # BR - Brazil
+    '14.102.70.1',    # IN - India
+    '213.180.141.140',# RU - Yandex Russia
+    '5.9.32.230',     # DE - Germany
+    '89.234.157.254', # FR - France
+    '31.13.64.1',     # IE - Facebook Ireland
+    '203.208.60.1',   # CN - Google China
+    '176.9.0.1',      # DE - Hetzner
 ]
 TARGETS = ['/admin', '/login', '/api/users', '/wp-admin', '/etc/passwd', '/search']
 USER_AGENTS = [
