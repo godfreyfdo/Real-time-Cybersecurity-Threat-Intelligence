@@ -22,5 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-!dist/index.html
+
 dist/assets/
+!dist/
+!dist/index.html
+!dist/favicon.svg
+!dist/icons.svg
