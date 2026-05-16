@@ -6,15 +6,15 @@ Stream network events / login attempts Lambda detects: brute force, SQL injectio
 
 
 
-\# Real-time Cybersecurity Threat Intelligence Platform
+ #Real-time Cybersecurity Threat Intelligence Platform
 
 
 
-🔴 LIVE DASHBOARD: http://threat-intel-archive-godfrey.s3-website-us-east-1.amazonaws.com/dashboard/index.html
+ LIVE DASHBOARD: http://threat-intel-archive-godfrey.s3-website-us-east-1.amazonaws.com/dashboard/index.html
 
 
 
-\## Architecture
+ Architecture
 
 Attackers → API Gateway → Lambda (ingest) → SQS → Lambda (classifier)
 
@@ -22,37 +22,25 @@ Attackers → API Gateway → Lambda (ingest) → SQS → Lambda (classifier)
 
 
 
-\## 6 Attack Types
+# 6 Attack Types
 
 SQL Injection, DDoS, XSS, Path Traversal, Brute Force, Port Scan
 
 
-
-\## Team Structure
-
-\- Part 1: Infrastructure \& Backend (lambdas/, cloudwatch/)
-
-\- Part 2: API \& Integration (simulator/, API Gateway)
-
-\- Part 3: Frontend \& Dashboard (dashboard/)
-
-
-
-\## Setup
+# Setup
 
 See docs/api.md for API documentation.
 
 See .env.example for required environment variables.
 
 
-
-\## AWS Services
+# AWS Services
 
 \- API Gateway, Lambda (x3), SQS, DynamoDB (x2), S3, SNS, CloudWatch
 
 
 
-\## Resume Project
+# Resume Project
 
 aws lambda put-function-concurrency --function-name threat-ingest --reserved-concurrent-executions 100 --region us-east-1
 
